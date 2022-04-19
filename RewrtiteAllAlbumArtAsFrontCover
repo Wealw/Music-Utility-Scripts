@@ -1,0 +1,8 @@
+#/bin/bash
+for f in *.flac; do
+        metaflac "$f" --export-picture-to=temp.image &&
+	metaflac "$f" --remove --block-type=PICTURE,PADDING --dont-use-padding &&
+	metaflac "$f" --remove-tag=COVERART  --dont-use-padding &&
+        metaflac "$f" --import-picture-from=temp.image --dont-use-padding 
+	rm temp.image
+done
