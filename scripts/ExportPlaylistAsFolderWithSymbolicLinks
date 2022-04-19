@@ -1,0 +1,25 @@
+#/bin/bash
+# Replace all the \ by /, makes the .m3u8 files system independant (execept for this fucker of groove music)
+sed -i "s/\\\\/\//gm" *.m3u8
+for playlist in *.m3u8; do
+	rm -R "$playlist.d"
+	mkdir "$playlist.d"
+	# Read each line of the file
+	cat "$playlist" | while IFS= read -r line; do
+		# Pattern used to capture annotation lines
+		pattern1='^#.*$'
+		# Pattern used to capture existing path lines
+		pattern2='^(.+\/(.+))$'
+		# Rewrite the annotations 
+		if [[ "$line" =~ $pattern1 ]]; then
+			skipped_line="$line"
+		# Edit the path to be relative
+		elif [[ "$line" =~ $pattern2 ]];then
+			filename="${BASH_REMATCH[2]}"
+			printf -v filename "%q" "$filename"
+			filename=${filename:2:-3}
+			echo "$filename"
+			ln -s "../../Titles/$filename" "$playlist.d/$filename"			
+		fi
+	done
+done
